@@ -39,7 +39,10 @@ dependencies {
 
     //view_binding_delegate
     implementation 'com.github.kirich1409:viewbindingpropertydelegate-noreflection:1.5.9'
-    
+
+    //fragment
+    implementation 'androidx.fragment:fragment-ktx:1.5.7'
+
     //android
     implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'

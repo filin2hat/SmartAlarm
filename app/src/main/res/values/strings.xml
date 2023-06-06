@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Smart Alarm</string>
+    <string name="set_alarm_clock">Установить будильник</string>
 </resources>

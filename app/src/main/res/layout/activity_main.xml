@@ -4,16 +4,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#3E3A3A"
     tools:context=".MainActivity">
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/alarm_button"
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/current_time_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Установить будильник"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="150dp"
+        android:textColor="#EA1E1E"
+        android:textSize="65sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="06:00:00" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/alarm_button"
+        style="@style/MaterialAlertDialog.Material3.Title.Text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:backgroundTint="#EA1E1E"
+        android:text="@string/set_alarm_clock"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/current_time_text_view" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
