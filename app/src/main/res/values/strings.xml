@@ -3,4 +3,8 @@
     <string name="set_alarm_clock">Установить будильник</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="coarse_lockat_msg">Требуется предоставить разрешение на грубую геолокацию</string>
+    <string name="overlay_msg">Разрешение на отображение наложений не предоставлено</string>
+    <string name="set_time">Выберите время</string>
+    <string name="alarm_clock_set_to">Будильник установлен на</string>
 </resources>
