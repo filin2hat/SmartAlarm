@@ -86,6 +86,15 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm) {
             calendar.set(Calendar.SECOND, 0)
             calendar.set(Calendar.MILLISECOND, 0)
 
+            val currentTimeMillis = System.currentTimeMillis()
+            val alarmTimeMillis = calendar.timeInMillis
+
+            if (alarmTimeMillis <= currentTimeMillis) {
+                // Если выбранное время меньше или равно текущему времени,
+                // то будильник должен сработать на следующие сутки в установленное время.
+                calendar.add(Calendar.DAY_OF_MONTH, 1)
+            }
+
             val alarmManager: AlarmManager =
                 requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
