@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -24,10 +25,22 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm) {
     private val binding by viewBinding(FragmentAlarmBinding::bind)
     private val viewModel: AlarmViewModel by viewModels()
 
+    private val overlayPermissionResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (Settings.canDrawOverlays(requireContext())) {
+                checkOverlayPermission()
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Разрешение на отображение наложений не предоставлено",
+                    Toast.LENGTH_SHORT
+                ).show()
+                requireActivity().finish()
+            }
+        }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        checkOverlayPermission()
 
         lifecycleScope.launch {
             viewModel.getTimeFlow().collect {
@@ -36,6 +49,7 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm) {
         }
 
         binding.alarmButton.setOnClickListener {
+            checkOverlayPermission()
             val timePicker = MaterialTimePicker.Builder()
                 .setTimeFormat(TimeFormat.CLOCK_24H)
                 .setHour(12)
@@ -77,7 +91,7 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm) {
                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                 Uri.parse("package:${requireContext().packageName}")
             )
-            startActivityForResult(intent, REQUEST_CODE_OVERLAY_PERMISSION)
+            overlayPermissionResult.launch(intent)
         }
     }
 
@@ -101,27 +115,5 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm) {
             intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
-    }
-
-    companion object {
-        private const val REQUEST_CODE_OVERLAY_PERMISSION = 123
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == REQUEST_CODE_OVERLAY_PERMISSION) {
-            if (Settings.canDrawOverlays(requireContext())) {
-                checkOverlayPermission()
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    "Разрешение на отображение наложений не предоставлено",
-                    Toast.LENGTH_SHORT
-                ).show()
-                requireActivity().finish()
-            }
-        }
     }
 }
