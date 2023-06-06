@@ -98,13 +98,19 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm) {
             val alarmManager: AlarmManager =
                 requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-            val alarmClockInfo =
-                AlarmManager.AlarmClockInfo(
-                    calendar.timeInMillis,
-                    getAlarmInfoPendingIntent()
-                )
-
-            alarmManager.setAlarmClock(alarmClockInfo, getAlarmActionPendingIntent())
+            val alarmIntent = Intent(requireContext(), AlarmReceiver::class.java)
+            alarmIntent.putExtra("message", "Wake up!")
+            val pendingIntent = PendingIntent.getBroadcast(
+                requireContext(),
+                0,
+                alarmIntent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
+            alarmManager.setExact(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                pendingIntent
+            )
 
             Toast.makeText(
                 requireContext(),
@@ -135,27 +141,5 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm) {
         } else {
             setAlarmClock()
         }
-    }
-
-    private fun getAlarmInfoPendingIntent(): PendingIntent {
-        val alarmInfoIntent = Intent(requireContext(), MainActivity::class.java)
-        alarmInfoIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-        return PendingIntent.getActivity(
-            requireContext(),
-            0,
-            alarmInfoIntent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-    }
-
-    private fun getAlarmActionPendingIntent(): PendingIntent {
-        val intent = Intent(requireContext(), AlarmActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-        return PendingIntent.getActivity(
-            requireContext(),
-            1,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
     }
 }
