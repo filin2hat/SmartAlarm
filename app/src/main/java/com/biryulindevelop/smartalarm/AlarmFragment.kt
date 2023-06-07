@@ -10,6 +10,7 @@ import android.icu.util.Calendar
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.system.Os.bind
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -90,8 +91,6 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm) {
             val alarmTimeMillis = calendar.timeInMillis
 
             if (alarmTimeMillis <= currentTimeMillis) {
-                // Если выбранное время меньше или равно текущему времени,
-                // то будильник должен сработать на следующие сутки в установленное время.
                 calendar.add(Calendar.DAY_OF_MONTH, 1)
             }
 
@@ -138,6 +137,32 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm) {
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             coarseLocationPermissionResult.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+        } else {
+            setAlarmClock()
+        }
+    }
+
+    private val postNotificationPermissionResult =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                checkPostNotificationPermission()
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.post_notification_msg),
+                    Toast.LENGTH_SHORT
+                ).show()
+                requireActivity().finish()
+            }
+        }
+
+    private fun checkPostNotificationPermission() {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            postNotificationPermissionResult.launch(Manifest.permission.POST_NOTIFICATIONS)
         } else {
             setAlarmClock()
         }

@@ -7,4 +7,5 @@
     <string name="overlay_msg">Разрешение на отображение наложений не предоставлено</string>
     <string name="set_time">Выберите время</string>
     <string name="alarm_clock_set_to">Будильник установлен на</string>
+    <string name="post_notification_msg">POST NOTIFY</string>
 </resources>
