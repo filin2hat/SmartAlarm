@@ -21,14 +21,27 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/alarm_button"
-        style="@style/MaterialAlertDialog.Material3.Title.Text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
         android:backgroundTint="@color/red"
         android:text="@string/set_alarm_clock"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        app:cornerRadius="2dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/counter_view" />
+
+    <com.biryulindevelop.smartalarm.widget.CounterView
+        android:id="@+id/counter_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/current_time_text_view" />
+        app:layout_constraintTop_toBottomOf="@+id/current_time_text_view" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

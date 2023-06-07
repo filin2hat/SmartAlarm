@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="#00FFFFFF"
+    tools:context=".MainActivity">
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/button_hour_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/red"
+        android:text="@string/hour_minus"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toTopOf="@id/button_minute_left"
+        app:layout_constraintEnd_toStartOf="@+id/counter_minute_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/counter_hour_text"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:background="#00FFFFFF"
+        android:text="0"
+        android:textAlignment="center"
+        android:textColor="@color/red"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/counter_minute_text"
+        app:layout_constraintStart_toEndOf="@id/button_hour_left"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/button_hour_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/red"
+        android:text="@string/hour_plus"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toTopOf="@id/button_minute_right"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/counter_hour_text"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/button_minute_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/red"
+        android:text="@string/min_minus"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/button_hour_left" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/counter_minute_text"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:background="#00FFFFFF"
+        android:text="0"
+        android:textAlignment="center"
+        android:textColor="@color/red"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/button_minute_left"
+        app:layout_constraintTop_toBottomOf="@id/counter_hour_text" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/button_minute_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/red"
+        android:text="@string/min_plus"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/counter_minute_text"
+        app:layout_constraintTop_toBottomOf="@id/button_hour_right" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">Smart Alarm</string>
     <string name="set_alarm_clock">Установить будильник</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="coarse_lockat_msg">Требуется предоставить разрешение на грубую геолокацию</string>
     <string name="overlay_msg">Разрешение на отображение наложений не предоставлено</string>
@@ -12,4 +11,8 @@
     <string name="permissions_denied_msg">Вы отказались предоставить необходимые разрешения. Без них приложение не сможет работать. Пожалуйста, предоставьте их в настройках приложения.</string>
     <string name="permissions_granted_msg">Разрешения предоставлены.</string>
     <string name="alarm">ALARM!</string>
+    <string name="hour_minus">Час -</string>
+    <string name="hour_plus">Час +</string>
+    <string name="min_minus">Мин -</string>
+    <string name="min_plus">Мин +</string>
 </resources>
