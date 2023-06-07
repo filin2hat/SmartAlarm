@@ -7,10 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.icu.util.Calendar
-import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
-import android.system.Os.bind
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,38 +26,10 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm) {
     private val binding by viewBinding(FragmentAlarmBinding::bind)
     private val viewModel: AlarmViewModel by viewModels()
 
-    private val overlayPermissionResult =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (Settings.canDrawOverlays(requireContext())) {
-                checkOverlayPermission()
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.overlay_msg),
-                    Toast.LENGTH_SHORT
-                ).show()
-                requireActivity().finish()
-            }
-        }
-
-    private val coarseLocationPermissionResult =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                checkCoarseLocationPermission()
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.coarse_lockat_msg),
-                    Toast.LENGTH_SHORT
-                ).show()
-                requireActivity().finish()
-            }
-        }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        checkOverlayPermission()
+        checkPermissions()
 
         lifecycleScope.launch {
             viewModel.getTimeFlow().collect {
@@ -68,7 +38,7 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm) {
         }
 
         binding.alarmButton.setOnClickListener {
-            checkCoarseLocationPermission()
+            setAlarmClock()
         }
     }
 
@@ -120,51 +90,57 @@ class AlarmFragment : Fragment(R.layout.fragment_alarm) {
         timePicker.show(childFragmentManager, "timePicker")
     }
 
-    private fun checkOverlayPermission() {
-        if (!Settings.canDrawOverlays(requireContext())) {
-            val intent = Intent(
-                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:${requireContext().packageName}")
-            )
-            overlayPermissionResult.launch(intent)
-        }
-    }
-
-    private fun checkCoarseLocationPermission() {
+    private fun checkPermissions() {
+        val permissions = mutableListOf<String>()
         if (ContextCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            coarseLocationPermissionResult.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-        } else {
-            setAlarmClock()
+            permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+        if (permissions.isNotEmpty()) {
+            val shouldShowRationale = permissions.any {
+                shouldShowRequestPermissionRationale(it)
+            }
+            if (shouldShowRationale) {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.permissions_rationale_msg),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            requestPermissions.launch(permissions.toTypedArray())
         }
     }
 
-    private val postNotificationPermissionResult =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                checkPostNotificationPermission()
+    private val requestPermissions =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val granted = permissions.entries.all {
+                it.value
+            }
+            if (granted) {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.permissions_granted_msg),
+                    Toast.LENGTH_SHORT
+                ).show()
             } else {
                 Toast.makeText(
                     requireContext(),
-                    getString(R.string.post_notification_msg),
+                    getString(R.string.permissions_denied_msg),
                     Toast.LENGTH_SHORT
                 ).show()
                 requireActivity().finish()
             }
         }
-
-    private fun checkPostNotificationPermission() {
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            postNotificationPermissionResult.launch(Manifest.permission.POST_NOTIFICATIONS)
-        } else {
-            setAlarmClock()
-        }
-    }
 }
