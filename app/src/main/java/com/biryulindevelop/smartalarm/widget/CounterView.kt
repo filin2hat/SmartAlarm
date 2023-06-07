@@ -42,18 +42,30 @@ class CounterView @JvmOverloads constructor(
 
     var counterHours = 0
         set(value) {
-            if (value == field) return
-            field = value
-            counterHourView.text = value.toString()
-            counterHourListeners.forEach { it(value) }
+            var newValue = value
+            if (newValue < 0) {
+                newValue = 23
+            } else if (newValue > 23) {
+                newValue = 0
+            }
+            if (newValue == field) return
+            field = newValue
+            counterHourView.text = newValue.toString()
+            counterHourListeners.forEach { it(newValue) }
         }
 
     var counterMinutes = 0
         set(value) {
-            if (value == field) return
-            field = value
-            counterHourView.text = value.toString()
-            counterHourListeners.forEach { it(value) }
+            var newValue = value
+            if (newValue < 0) {
+                newValue = 59
+            } else if (newValue > 59) {
+                newValue = 0
+            }
+            if (newValue == field) return
+            field = newValue
+            counterMinuteView.text = newValue.toString()
+            counterMinuteListeners.forEach { it(newValue) }
         }
 
     fun addHourCounterListener(listener: (Int) -> Unit) {

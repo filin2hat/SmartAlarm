@@ -24,13 +24,15 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.biryulindevelop.smartalarm.databinding.ActivityMainBinding
-import com.google.android.material.timepicker.MaterialTimePicker
-import com.google.android.material.timepicker.TimeFormat
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private val binding by viewBinding(ActivityMainBinding::bind)
     private val viewModel: AlarmViewModel by viewModels()
+    private var hour: Int = 0
+    private var minute: Int = 0
+    private val hourCounterListener = { value: Int -> hour = value }
+    private val minuteCounterListener = { value: Int -> minute = value }
 
     private val overlayPermissionResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
@@ -60,59 +62,58 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         binding.alarmButton.setOnClickListener {
             checkOverlayPermission()
         }
+
+        binding.counterView.addHourCounterListener(hourCounterListener)
+        binding.counterView.addMinuteCounterListener(minuteCounterListener)
+    }
+
+    override fun onDestroy() {
+        binding.counterView.removeHourCounterListener(hourCounterListener)
+        binding.counterView.removeMinuteCounterListener(minuteCounterListener)
+        super.onDestroy()
     }
 
     @SuppressLint("MissingPermission")
     private fun setAlarmClock() {
-        val timePicker = MaterialTimePicker.Builder()
-            .setTimeFormat(TimeFormat.CLOCK_24H)
-            .setHour(12)
-            .setMinute(0)
-            .setTitleText(getString(R.string.set_time))
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, hour)
+        calendar.set(Calendar.MINUTE, minute)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+
+        val currentTimeMillis = System.currentTimeMillis()
+        val alarmTimeMillis = calendar.timeInMillis
+
+        if (alarmTimeMillis <= currentTimeMillis) {
+            calendar.add(Calendar.DAY_OF_MONTH, 1)
+        }
+
+        val alarmManager: AlarmManager =
+            getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        val alarmClockInfo =
+            AlarmManager.AlarmClockInfo(calendar.timeInMillis, getAlarmInfoPendingIntent())
+
+        alarmManager.setAlarmClock(alarmClockInfo, getAlarmActionPendingIntent())
+
+        val notificationManager = NotificationManagerCompat.from(this)
+        val channelId = "alarm_channel"
+        val channel = NotificationChannel(
+            channelId,
+            "Alarm Channel",
+            NotificationManager.IMPORTANCE_HIGH
+        )
+        notificationManager.createNotificationChannel(channel)
+
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setSmallIcon(R.drawable.ic_alarm)
+            .setContentTitle(getString(R.string.app_name))
+            .setContentText(getString(R.string.alarm_clock_set_to) + " ${hour}:${minute}")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
             .build()
 
-        timePicker.addOnPositiveButtonClickListener {
-            val calendar = Calendar.getInstance()
-            calendar.set(Calendar.HOUR_OF_DAY, timePicker.hour)
-            calendar.set(Calendar.MINUTE, timePicker.minute)
-            calendar.set(Calendar.SECOND, 0)
-            calendar.set(Calendar.MILLISECOND, 0)
-
-            val currentTimeMillis = System.currentTimeMillis()
-            val alarmTimeMillis = calendar.timeInMillis
-
-            if (alarmTimeMillis <= currentTimeMillis) {
-                calendar.add(Calendar.DAY_OF_MONTH, 1)
-            }
-
-            val alarmManager: AlarmManager =
-                getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-            val alarmClockInfo =
-                AlarmManager.AlarmClockInfo(calendar.timeInMillis, getAlarmInfoPendingIntent())
-
-            alarmManager.setAlarmClock(alarmClockInfo, getAlarmActionPendingIntent())
-
-            val notificationManager = NotificationManagerCompat.from(this)
-            val channelId = "alarm_channel"
-            val channel = NotificationChannel(
-                channelId,
-                "Alarm Channel",
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            notificationManager.createNotificationChannel(channel)
-
-            val notification = NotificationCompat.Builder(this, channelId)
-                .setSmallIcon(R.drawable.ic_alarm)
-                .setContentTitle(getString(R.string.app_name))
-                .setContentText(getString(R.string.alarm_clock_set_to) + " ${timePicker.hour}:${timePicker.minute}")
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setAutoCancel(true)
-                .build()
-
-            notificationManager.notify(1, notification)
-        }
-        timePicker.show(supportFragmentManager, "timePicker")
+        notificationManager.notify(1, notification)
     }
 
     private fun checkOverlayPermission() {
