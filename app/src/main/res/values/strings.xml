@@ -10,5 +10,6 @@
     <string name="post_notification_msg">POST NOTIFY</string>
     <string name="permissions_rationale_msg">Для работы приложения необходимо предоставить следующие разрешения: доступ к грубой геолокации и уведомления. Пожалуйста, предоставьте их в настройках приложения.</string>
     <string name="permissions_denied_msg">Вы отказались предоставить необходимые разрешения. Без них приложение не сможет работать. Пожалуйста, предоставьте их в настройках приложения.</string>
-    <string name="permissions_granted_msg">Все разрешения предоставлены.</string>
+    <string name="permissions_granted_msg">Разрешения предоставлены.</string>
+    <string name="alarm">ALARM!</string>
 </resources>
