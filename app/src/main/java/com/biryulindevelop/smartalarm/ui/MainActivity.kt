@@ -1,15 +1,8 @@
-package com.biryulindevelop.smartalarm
+package com.biryulindevelop.smartalarm.ui
 
 import android.Manifest
-import android.annotation.SuppressLint
-import android.app.AlarmManager
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.icu.util.Calendar
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -18,12 +11,16 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import by.kirich1409.viewbindingdelegate.viewBinding
+import com.biryulindevelop.smartalarm.R
 import com.biryulindevelop.smartalarm.databinding.ActivityMainBinding
+import com.biryulindevelop.smartalarm.domain.AlarmCoroutineWorker
+import com.biryulindevelop.smartalarm.ui.viewmodel.AlarmViewModel
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
@@ -52,6 +49,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         super.onCreate(savedInstanceState)
         checkOverlayPermission()
 
+        checkPermissions()
 
         lifecycleScope.launch {
             viewModel.getTimeFlow().collect {
@@ -60,7 +58,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
 
         binding.alarmButton.setOnClickListener {
-            checkPermissions()
+            val inputData = Data.Builder()
+                .putInt("hour", hour)
+                .putInt("minute", minute)
+                .build()
+
+            val alarmCoroutineWorker = OneTimeWorkRequestBuilder<AlarmCoroutineWorker>()
+                .setInputData(inputData)
+                .build()
+
+            WorkManager.getInstance(this).enqueue(alarmCoroutineWorker)
         }
 
         binding.counterView.addHourCounterListener(hourCounterListener)
@@ -71,49 +78,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         binding.counterView.removeHourCounterListener(hourCounterListener)
         binding.counterView.removeMinuteCounterListener(minuteCounterListener)
         super.onDestroy()
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun setAlarmClock() {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.HOUR_OF_DAY, hour)
-        calendar.set(Calendar.MINUTE, minute)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-
-        val currentTimeMillis = System.currentTimeMillis()
-        val alarmTimeMillis = calendar.timeInMillis
-
-        if (alarmTimeMillis <= currentTimeMillis) {
-            calendar.add(Calendar.DAY_OF_MONTH, 1)
-        }
-
-        val alarmManager: AlarmManager =
-            getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-        val alarmClockInfo =
-            AlarmManager.AlarmClockInfo(calendar.timeInMillis, getAlarmInfoPendingIntent())
-
-        alarmManager.setAlarmClock(alarmClockInfo, getAlarmActionPendingIntent())
-
-        val notificationManager = NotificationManagerCompat.from(this)
-        val channelId = "alarm_channel"
-        val channel = NotificationChannel(
-            channelId,
-            "Alarm Channel",
-            NotificationManager.IMPORTANCE_HIGH
-        )
-        notificationManager.createNotificationChannel(channel)
-
-        val notification = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(R.drawable.ic_alarm)
-            .setContentTitle(getString(R.string.app_name))
-            .setContentText(getString(R.string.alarm_clock_set_to) + " ${hour}:${minute}")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-            .build()
-
-        notificationManager.notify(1, notification)
     }
 
     private fun checkOverlayPermission() {
@@ -157,7 +121,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
             requestPermissions.launch(permissions.toTypedArray())
         }
-        setAlarmClock()
     }
 
     private val requestPermissions =
@@ -179,26 +142,4 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 ).show()
             }
         }
-
-    private fun getAlarmInfoPendingIntent(): PendingIntent {
-        val alarmInfoIntent = Intent(this, MainActivity::class.java)
-        alarmInfoIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-        return PendingIntent.getActivity(
-            this,
-            0,
-            alarmInfoIntent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-    }
-
-    private fun getAlarmActionPendingIntent(): PendingIntent {
-        val intent = Intent(this, AlarmActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-        return PendingIntent.getActivity(
-            this,
-            1,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-    }
 }

@@ -1,4 +1,4 @@
-package com.biryulindevelop.smartalarm
+package com.biryulindevelop.smartalarm.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.Dispatchers
