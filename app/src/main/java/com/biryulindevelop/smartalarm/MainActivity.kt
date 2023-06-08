@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private val minuteCounterListener = { value: Int -> minute = value }
 
     private val overlayPermissionResult =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (Settings.canDrawOverlays(this)) {
                 checkOverlayPermission()
             } else {
@@ -50,8 +50,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        checkOverlayPermission()
 
-        checkPermissions()
 
         lifecycleScope.launch {
             viewModel.getTimeFlow().collect {
@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
 
         binding.alarmButton.setOnClickListener {
-            checkOverlayPermission()
+            checkPermissions()
         }
 
         binding.counterView.addHourCounterListener(hourCounterListener)
@@ -124,7 +124,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             )
             overlayPermissionResult.launch(intent)
         }
-        setAlarmClock()
     }
 
     private fun checkPermissions() {
@@ -158,6 +157,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
             requestPermissions.launch(permissions.toTypedArray())
         }
+        setAlarmClock()
     }
 
     private val requestPermissions =
