@@ -8,6 +8,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.location.Location
+import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -16,17 +17,25 @@ import androidx.work.WorkerParameters
 import com.biryulindevelop.smartalarm.R
 import com.biryulindevelop.smartalarm.ui.AlarmActivity
 import com.biryulindevelop.smartalarm.ui.MainActivity
+import org.shredzone.commons.suncalc.SunTimes
 import java.util.Calendar
+import java.util.Date
+import java.util.TimeZone
 
 class AlarmCoroutineWorker(context: Context, params: WorkerParameters) :
     CoroutineWorker(context, params) {
 
     private val locationProvider = LastLocationProvider(context)
     override suspend fun doWork(): Result {
-        val hour = inputData.getInt("hour", 0)
-        val minute = inputData.getInt("minute", 0)
-
-        setAlarm(hour, minute)
+        val hourUser = inputData.getInt("hour", 0)
+        val minuteUser = inputData.getInt("minute", 0)
+        getLocation { location ->
+            if (location != null) {
+                getSunriseTime(location) { hour, minute ->
+                    setAlarm(hour, minute)
+                }
+            }
+        }
         return Result.success()
     }
 
@@ -43,6 +52,23 @@ class AlarmCoroutineWorker(context: Context, params: WorkerParameters) :
         }
     }
 
+    private fun getSunriseTime(location: Location, callback: (Int, Int) -> Unit) {
+        val timeZone = TimeZone.getDefault()
+        //Log.d("TAG", "timeZone: $timeZone")
+        val calendar = Calendar.getInstance(timeZone)
+        //Log.d("TAG", "calendar: $calendar")
+        val calculator = SunTimes.compute()
+            .localTime()
+            .at(location.latitude, location.longitude)
+            .execute()
+        val sunrise = calculator.rise
+        Log.d("TAG", "sunrise: $sunrise")
+        calendar.timeInMillis = sunrise?.toInstant()?.toEpochMilli() as Long
+        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+        val minute = calendar.get(Calendar.MINUTE)
+       // Log.d("TAG", "hour: $hour, minute: $minute")
+        callback(hour, minute)
+    }
 
     private fun setAlarm(hour: Int, minute: Int) {
         val calendar = Calendar.getInstance()

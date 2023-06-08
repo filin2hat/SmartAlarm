@@ -9,7 +9,6 @@ import androidx.core.content.PermissionChecker.checkSelfPermission
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Task
 
-
 class LastLocationProvider(private val context: Context) {
 
      fun getLocation(callback: (Result<Location>) -> Unit) {
