@@ -36,6 +36,12 @@ android {
 }
 
 dependencies {
+    //google location api
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+
+    //sun calc
+    implementation 'org.shredzone.commons:commons-suncalc:3.7'
+
     //worker
     implementation 'androidx.work:work-runtime-ktx:2.8.1'
 
@@ -43,7 +49,7 @@ dependencies {
     implementation 'com.github.kirich1409:viewbindingpropertydelegate-noreflection:1.5.9'
 
     //fragment
-    implementation 'androidx.fragment:fragment-ktx:1.5.7'
+    implementation 'androidx.fragment:fragment-ktx:1.6.0'
 
     //android
     implementation 'androidx.core:core-ktx:1.10.1'

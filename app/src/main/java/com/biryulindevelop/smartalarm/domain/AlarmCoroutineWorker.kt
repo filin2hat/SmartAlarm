@@ -7,7 +7,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.icu.util.Calendar
+import android.location.Location
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.CoroutineWorker
@@ -15,16 +16,33 @@ import androidx.work.WorkerParameters
 import com.biryulindevelop.smartalarm.R
 import com.biryulindevelop.smartalarm.ui.AlarmActivity
 import com.biryulindevelop.smartalarm.ui.MainActivity
+import java.util.Calendar
 
 class AlarmCoroutineWorker(context: Context, params: WorkerParameters) :
     CoroutineWorker(context, params) {
 
+    private val locationProvider = LastLocationProvider(context)
     override suspend fun doWork(): Result {
         val hour = inputData.getInt("hour", 0)
         val minute = inputData.getInt("minute", 0)
+
         setAlarm(hour, minute)
         return Result.success()
     }
+
+    private fun getLocation(callback: (Location?) -> Unit) {
+        locationProvider.getLocation { result ->
+            if (result.isSuccess) {
+                val location = result.getOrNull()
+                callback(location)
+            } else {
+                val exception = result.exceptionOrNull()
+                Toast.makeText(applicationContext, exception?.message, Toast.LENGTH_SHORT).show()
+                callback(null)
+            }
+        }
+    }
+
 
     private fun setAlarm(hour: Int, minute: Int) {
         val calendar = Calendar.getInstance()
@@ -44,6 +62,7 @@ class AlarmCoroutineWorker(context: Context, params: WorkerParameters) :
         alarmManager.setAlarmClock(alarmClockInfo, getAlarmActionPendingIntent())
         makeNotification(hour, minute)
     }
+
 
     @SuppressLint("MissingPermission")
     private fun makeNotification(hour: Int, minute: Int) {
