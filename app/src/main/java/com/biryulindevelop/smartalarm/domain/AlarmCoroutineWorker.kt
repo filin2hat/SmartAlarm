@@ -18,33 +18,35 @@ import com.biryulindevelop.smartalarm.ui.MainActivity
 
 class AlarmCoroutineWorker(context: Context, params: WorkerParameters) :
     CoroutineWorker(context, params) {
-    @SuppressLint("MissingPermission")
-    override suspend fun doWork(): Result {
 
+    override suspend fun doWork(): Result {
         val hour = inputData.getInt("hour", 0)
         val minute = inputData.getInt("minute", 0)
+        setAlarm(hour, minute)
+        return Result.success()
+    }
 
+    private fun setAlarm(hour: Int, minute: Int) {
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.HOUR_OF_DAY, hour)
         calendar.set(Calendar.MINUTE, minute)
         calendar.set(Calendar.SECOND, 0)
         calendar.set(Calendar.MILLISECOND, 0)
-
         val currentTimeMillis = System.currentTimeMillis()
         val alarmTimeMillis = calendar.timeInMillis
-
         if (alarmTimeMillis <= currentTimeMillis) {
             calendar.add(Calendar.DAY_OF_MONTH, 1)
         }
-
         val alarmManager: AlarmManager =
             applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
         val alarmClockInfo =
             AlarmManager.AlarmClockInfo(alarmTimeMillis, getAlarmInfoPendingIntent())
-
         alarmManager.setAlarmClock(alarmClockInfo, getAlarmActionPendingIntent())
+        makeNotification(hour, minute)
+    }
 
+    @SuppressLint("MissingPermission")
+    private fun makeNotification(hour: Int, minute: Int) {
         val notificationManager = NotificationManagerCompat.from(applicationContext)
         val channelId = "alarm_channel"
         val channel = NotificationChannel(
@@ -63,10 +65,7 @@ class AlarmCoroutineWorker(context: Context, params: WorkerParameters) :
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .build()
-
         notificationManager.notify(1, notification)
-
-        return Result.success()
     }
 
     private fun getAlarmInfoPendingIntent(): PendingIntent {

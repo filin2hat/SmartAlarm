@@ -31,6 +31,54 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private val hourCounterListener = { value: Int -> hour = value }
     private val minuteCounterListener = { value: Int -> minute = value }
 
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        checkOverlayPermission()
+
+        lifecycleScope.launch {
+            viewModel.getTimeFlow().collect {
+                binding.currentTimeTextView.text = it
+            }
+        }
+
+        binding.alarmButton.setOnClickListener {
+            checkPermissions()
+        }
+
+        binding.counterView.addHourCounterListener(hourCounterListener)
+        binding.counterView.addMinuteCounterListener(minuteCounterListener)
+    }
+
+    override fun onDestroy() {
+        binding.counterView.removeHourCounterListener(hourCounterListener)
+        binding.counterView.removeMinuteCounterListener(minuteCounterListener)
+        super.onDestroy()
+    }
+
+    private fun makeWorker() {
+        val inputData = Data.Builder()
+            .putInt("hour", hour)
+            .putInt("minute", minute)
+            .build()
+
+        val alarmCoroutineWorker = OneTimeWorkRequestBuilder<AlarmCoroutineWorker>()
+            .setInputData(inputData)
+            .build()
+
+        WorkManager.getInstance(this).enqueue(alarmCoroutineWorker)
+    }
+
+    private fun checkOverlayPermission() {
+        if (!Settings.canDrawOverlays(this)) {
+            val intent = Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:${this.packageName}")
+            )
+            overlayPermissionResult.launch(intent)
+        }
+    }
+
     private val overlayPermissionResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (Settings.canDrawOverlays(this)) {
@@ -44,51 +92,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 this.finish()
             }
         }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        checkOverlayPermission()
-
-        checkPermissions()
-
-        lifecycleScope.launch {
-            viewModel.getTimeFlow().collect {
-                binding.currentTimeTextView.text = it
-            }
-        }
-
-        binding.alarmButton.setOnClickListener {
-            val inputData = Data.Builder()
-                .putInt("hour", hour)
-                .putInt("minute", minute)
-                .build()
-
-            val alarmCoroutineWorker = OneTimeWorkRequestBuilder<AlarmCoroutineWorker>()
-                .setInputData(inputData)
-                .build()
-
-            WorkManager.getInstance(this).enqueue(alarmCoroutineWorker)
-        }
-
-        binding.counterView.addHourCounterListener(hourCounterListener)
-        binding.counterView.addMinuteCounterListener(minuteCounterListener)
-    }
-
-    override fun onDestroy() {
-        binding.counterView.removeHourCounterListener(hourCounterListener)
-        binding.counterView.removeMinuteCounterListener(minuteCounterListener)
-        super.onDestroy()
-    }
-
-    private fun checkOverlayPermission() {
-        if (!Settings.canDrawOverlays(this)) {
-            val intent = Intent(
-                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                Uri.parse("package:${this.packageName}")
-            )
-            overlayPermissionResult.launch(intent)
-        }
-    }
 
     private fun checkPermissions() {
         val permissions = mutableListOf<String>()
@@ -120,6 +123,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 ).show()
             }
             requestPermissions.launch(permissions.toTypedArray())
+        }else {
+            makeWorker()
         }
     }
 
