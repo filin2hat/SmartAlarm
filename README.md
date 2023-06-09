@@ -1,6 +1,7 @@
-## Smart Alarm v1.0
+# Smart Alarm v1.0
 
 English:
+
 Alarm Clock is an Android application that allows users to set alarms based on the time of sunrise
 at their current location. The app uses the user's location to calculate the time of sunrise and 
 allows the user to set an alarm for a specified number of hours and minutes after sunrise. The app 
@@ -12,6 +13,7 @@ the user's location and the SunTimes library to calculate the time of sunrise. T
 a custom view for selecting the number of hours and minutes for the alarm.
 
 Russian:
+
 Alarm Clock - это приложение для Android, которое позволяет пользователям устанавливать будильники 
 на основе времени восхода солнца в их текущем местоположении. Приложение использует местоположение
 пользователя для расчета времени восхода солнца и позволяет пользователю установить будильник на
