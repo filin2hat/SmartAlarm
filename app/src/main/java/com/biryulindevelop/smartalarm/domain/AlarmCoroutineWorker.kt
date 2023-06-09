@@ -31,8 +31,10 @@ class AlarmCoroutineWorker(context: Context, params: WorkerParameters) :
         val minuteUser = inputData.getInt("minute", 0)
         getLocation { location ->
             if (location != null) {
-                getSunriseTime(location) { hour, minute ->
-                    setAlarm(hour, minute)
+                getSunriseTime(location) { calendar ->
+                    calendar.add(Calendar.HOUR_OF_DAY, hourUser)
+                    calendar.add(Calendar.MINUTE, minuteUser)
+                    setAlarm(calendar)
                 }
             }
         }
@@ -52,30 +54,20 @@ class AlarmCoroutineWorker(context: Context, params: WorkerParameters) :
         }
     }
 
-    private fun getSunriseTime(location: Location, callback: (Int, Int) -> Unit) {
+    private fun getSunriseTime(location: Location, callback: (Calendar) -> Unit) {
         val timeZone = TimeZone.getDefault()
-        //Log.d("TAG", "timeZone: $timeZone")
-        val calendar = Calendar.getInstance(timeZone)
-        //Log.d("TAG", "calendar: $calendar")
+        val date = Date()
         val calculator = SunTimes.compute()
-            .localTime()
+            .on(date)
             .at(location.latitude, location.longitude)
             .execute()
         val sunrise = calculator.rise
-        Log.d("TAG", "sunrise: $sunrise")
+        val calendar = Calendar.getInstance(timeZone)
         calendar.timeInMillis = sunrise?.toInstant()?.toEpochMilli() as Long
-        val hour = calendar.get(Calendar.HOUR_OF_DAY)
-        val minute = calendar.get(Calendar.MINUTE)
-       // Log.d("TAG", "hour: $hour, minute: $minute")
-        callback(hour, minute)
+        callback(calendar)
     }
 
-    private fun setAlarm(hour: Int, minute: Int) {
-        val calendar = Calendar.getInstance()
-        calendar.set(Calendar.HOUR_OF_DAY, hour)
-        calendar.set(Calendar.MINUTE, minute)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
+    private fun setAlarm(calendar: Calendar) {
         val currentTimeMillis = System.currentTimeMillis()
         val alarmTimeMillis = calendar.timeInMillis
         if (alarmTimeMillis <= currentTimeMillis) {
@@ -86,9 +78,8 @@ class AlarmCoroutineWorker(context: Context, params: WorkerParameters) :
         val alarmClockInfo =
             AlarmManager.AlarmClockInfo(alarmTimeMillis, getAlarmInfoPendingIntent())
         alarmManager.setAlarmClock(alarmClockInfo, getAlarmActionPendingIntent())
-        makeNotification(hour, minute)
+        makeNotification(calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE))
     }
-
 
     @SuppressLint("MissingPermission")
     private fun makeNotification(hour: Int, minute: Int) {
