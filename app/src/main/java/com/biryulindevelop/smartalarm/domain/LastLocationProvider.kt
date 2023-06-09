@@ -6,6 +6,7 @@ import android.content.Context
 import android.location.Location
 import androidx.core.content.PermissionChecker
 import androidx.core.content.PermissionChecker.checkSelfPermission
+import com.biryulindevelop.smartalarm.R
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Task
 
@@ -13,7 +14,7 @@ class LastLocationProvider(private val context: Context) {
 
      fun getLocation(callback: (Result<Location>) -> Unit) {
         if (!hasLocationPermission()) {
-            callback(Result.failure(Exception("Location permission not granted.")))
+            callback(Result.failure(Exception(context.getString(R.string.location_permission_not_granted))))
             return
         }
         val lastLocationTask = getLocationTask()
@@ -22,7 +23,7 @@ class LastLocationProvider(private val context: Context) {
             if (location != null) {
                 callback(Result.success(location))
             } else {
-                callback(Result.failure(Exception("Location not found.")))
+                callback(Result.failure(Exception(context.getString(R.string.location_not_found))))
             }
         }
     }

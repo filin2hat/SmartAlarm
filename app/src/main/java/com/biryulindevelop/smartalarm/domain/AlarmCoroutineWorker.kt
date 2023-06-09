@@ -8,7 +8,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.location.Location
-import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -29,9 +28,9 @@ class AlarmCoroutineWorker(context: Context, params: WorkerParameters) :
     override suspend fun doWork(): Result {
         val hourUser = inputData.getInt("hour", 0)
         val minuteUser = inputData.getInt("minute", 0)
-        getLocation { location ->
+        getLastLocation { location ->
             if (location != null) {
-                getSunriseTime(location) { calendar ->
+                calcSunriseTime(location) { calendar ->
                     calendar.add(Calendar.HOUR_OF_DAY, hourUser)
                     calendar.add(Calendar.MINUTE, minuteUser)
                     setAlarm(calendar)
@@ -41,7 +40,7 @@ class AlarmCoroutineWorker(context: Context, params: WorkerParameters) :
         return Result.success()
     }
 
-    private fun getLocation(callback: (Location?) -> Unit) {
+    private fun getLastLocation(callback: (Location?) -> Unit) {
         locationProvider.getLocation { result ->
             if (result.isSuccess) {
                 val location = result.getOrNull()
@@ -54,7 +53,7 @@ class AlarmCoroutineWorker(context: Context, params: WorkerParameters) :
         }
     }
 
-    private fun getSunriseTime(location: Location, callback: (Calendar) -> Unit) {
+    private fun calcSunriseTime(location: Location, callback: (Calendar) -> Unit) {
         val timeZone = TimeZone.getDefault()
         val date = Date()
         val calculator = SunTimes.compute()

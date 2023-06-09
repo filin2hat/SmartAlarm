@@ -1,18 +1,20 @@
 <resources>
-    <string name="app_name">Smart Alarm</string>
-    <string name="set_alarm_clock">Установить будильник</string>
+    <string name="app_name">SunLarm</string>
+    <string name="set_alarm_clock">Set an alarm</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="coarse_lockat_msg">Требуется предоставить разрешение на грубую геолокацию</string>
-    <string name="overlay_msg">Разрешение на отображение наложений не предоставлено</string>
-    <string name="set_time">Выберите время</string>
-    <string name="alarm_clock_set_to">Будильник установлен на</string>
+    <string name="coarse_lockat_msg">Permission required for coarse geolocation</string>
+    <string name="overlay_msg">Permission not granted to display overlays</string>
+    <string name="set_time">Pick a time</string>
+    <string name="alarm_clock_set_to">Alarm clock set to</string>
     <string name="post_notification_msg">POST NOTIFY</string>
-    <string name="permissions_rationale_msg">Для работы приложения необходимо предоставить следующие разрешения: доступ к грубой геолокации и уведомления. Пожалуйста, предоставьте их в настройках приложения.</string>
-    <string name="permissions_denied_msg">Вы отказались предоставить необходимые разрешения. Без них приложение не сможет работать. Пожалуйста, предоставьте их в настройках приложения.</string>
-    <string name="permissions_granted_msg">Разрешения предоставлены.</string>
+    <string name="permissions_rationale_msg">The following permissions must be granted for the application to work: access to coarse geolocation and notifications. Please provide them in the application settings.</string>
+    <string name="permissions_denied_msg">You refused to grant the required permissions. Without them, the application will not work. Please provide them in the application settings.</string>
+    <string name="permissions_granted_msg">Press the set alarm button.</string>
     <string name="alarm_off">ALARM OFF</string>
-    <string name="hour_minus">Час -</string>
-    <string name="hour_plus">Час +</string>
-    <string name="min_minus">Мин -</string>
-    <string name="min_plus">Мин +</string>
+    <string name="hour_minus">Hour -</string>
+    <string name="hour_plus">Hour +</string>
+    <string name="min_minus">Min -</string>
+    <string name="min_plus">Min +</string>
+    <string name="location_not_found">Current location not found.</string>
+    <string name="location_permission_not_granted">Location permission not granted.</string>
 </resources>
